@@ -6,6 +6,8 @@ script to contain io class
 
 @author: deadpool
 """
+import os
+from scipy.io import wavfile
 
 class DataIO():
     """
@@ -16,6 +18,9 @@ class DataIO():
         self.flnm = ""
         self.fldr = ""
         
+    def add_fldr(self, fldr):
+        self.fldr = fldr
+
     def add_flnm(self, flnm):
         self.flnm = flnm
         
@@ -28,6 +33,17 @@ class DataIO():
             for ln in f:
                 data_dct_lst.append({ hdr_dct[idx]: data_vl for idx, data_vl in enumerate(ln.strip().split(separator)) })
         return data_dct_lst
-        
-        
+    
+    def rd_snd(self, sngl_fl=True):
+        if sngl_fl:
+            samplerate, data_arry = wavfile.read(self.flnm)
+            return samplerate, data_arry
+        else:
+            data_dct_lst = []
+            for flnm in os.listdir(self.fldr):
+                if os.path.isfile(os.path.join(self.fldr, flnm)):
+                    samplerate, data_arry = wavfile.read(os.path.join(self.fldr, flnm))
+                    data_dct_lst.append({'flnm': flnm, 'smpl_rt': samplerate, 'data': data_arry})
+            return data_dct_lst
+            
 
