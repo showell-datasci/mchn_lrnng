@@ -7,7 +7,8 @@ unit testing for io_spprt
 
 @author: deadpool
 """
-
+import os
+import random
 import time
 
 import io_spprt as ios
@@ -39,6 +40,31 @@ def tst_data_io_snd(data_loc, sngl_fl):
         print(f'It took {snd_end_tm - snd_strt_tm} to get sound files.')
 
 
+def tst_fltr_prcss(data_loc):
+    data_prcss = ios.ProcessDataIO()
+    data_prcss.add_fldr(data_loc)
+    snd_strt_tm = time.time()
+    def fltr_fnct(flnm, fltr_prcnt):
+        rslts= {}
+        if random.random() > fltr_prcnt:
+            data_prcss.add_flnm(flnm)
+            sample_rate, data = data_prcss.rd_snd(True)
+            rslts = {'flnm': flnm, 'smpl_rt': sample_rate, 'data': data}
+            keep_tf = True
+        else:
+            keep_tf = False
+        return keep_tf, rslts
+    
+    data_dct_lst = data_prcss.fltr_prcss_fldr(fltr_fnct, 0.75)   
+    for vl in data_dct_lst[:5]:
+        print(vl)
+    snd_end_tm = time.time()
+    print(f'It took {snd_end_tm - snd_strt_tm} to get sound files.')
+    print(f'There are now {len(data_dct_lst)} sampled files.')
+        
+        
+    
+
 if __name__ == "__main__":
     strt_tm = time.time()
     flnm = r'/home/deadpool/Projects/MCHN_LRNNG/DATA/ESC-50-master/meta/esc50.csv'
@@ -52,6 +78,9 @@ if __name__ == "__main__":
     
     print("Testing sound data folder")
     tst_data_io_snd(snd_fldr, sngl_fl=False)
+    
+    print("Testing filtering and processing of sound data folder")
+    tst_fltr_prcss(snd_fldr)
     
     end_tm = time.time()
     print(f"This scirpt took {end_tm-strt_tm} seconds to run.")

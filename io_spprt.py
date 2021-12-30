@@ -19,12 +19,16 @@ class DataIO():
         self.fldr = ""
         
     def add_fldr(self, fldr):
+        """Sets the folder name; must be set to read in multiple files"""
         self.fldr = fldr
 
     def add_flnm(self, flnm):
+        """Sets the filename; must be set to read single file"""
         self.flnm = flnm
         
     def rd_csv(self, separator=','):
+        """Method to read csv files into memory as a list of dictionaries;
+        all inputs are text"""
         # read csv files into a list of dictionaries
         # assumes a header
         data_dct_lst = []
@@ -47,3 +51,18 @@ class DataIO():
             return data_dct_lst
             
 
+class ProcessDataIO(DataIO):
+    def __init__(self):
+        self.flnm = ""
+        self.fldr = ""
+        super().__init__()
+        
+    def fltr_prcss_fldr(self, fltr_prcss_fnct, fltr_prcnt):
+        data_dct_lst = []
+        for flnm in os.listdir(self.fldr):
+            if os.path.isfile(os.path.join(self.fldr, flnm)):
+                keep_tf, rstls = fltr_prcss_fnct(os.path.join(self.fldr, flnm), fltr_prcnt)
+                if keep_tf:
+                    data_dct_lst.append(rstls)
+        return data_dct_lst
+    
