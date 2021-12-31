@@ -15,7 +15,7 @@ algorithm to assess applicability to a dataset.
 @author: deadpool
 """
 
-import time
+
 
 """
 General process:
@@ -35,10 +35,14 @@ UPDATE:
     (2) run model on validate data set
     (3) calculate accuracy
 """
+
 import json
+import numpy as np
 import os
 import pickle as pkl
 import random
+import sys
+import time
 
 import io_spprt as ios
 
@@ -81,12 +85,30 @@ def train_model(fldr, meta_fl, fltr_prcnt, otpt_flnm, psh_typ):
     if psh_typ == 'pickle':  
         # pickling presever python types, but requires python to use
         # json is more generalizable
-        with open('otpt_flnm', 'wb') as g:
+        with open(otpt_flnm, 'wb') as g:
             # the following pickles data with the highes protocal
             pkl.dump(data_dct_lst, g, pkl.HIGHEST_PROTOCOL)
     
     
     return None
+
+def vldt_mdl(mdl_fl, fl_typ):
+    if fl_typ == 'json':
+        with open(mdl_fl, 'r') as f:
+            mdl_dct_lst = json.load(f)
+            for vl in mdl_dct_lst:
+                vl['data'] = np.array(vl['data'], dtype = 'int16')
+            print(len(mdl_dct_lst))
+    elif fl_typ == 'pickle':
+        with open(mdl_fl, 'rb') as f:
+            mdl_dct_lst = pkl.load(f)
+
+        print(len(mdl_dct_lst))
+    # TODO load meta data
+    # TODO build knn classifier
+    # TODO build analysis tool
+    # TODO build accuracy tools
+            
 
 if __name__ == "__main__":
     strt_tm = time.time()
@@ -98,12 +120,19 @@ if __name__ == "__main__":
     mdl_flnm_pkl = 'knn.pkl'
 
 
-    print("TRAINING")
-    
-    train_model(snd_fldr, meta_fl, fltr_prcnt=0.5, otpt_flnm=os.path.join(otpt_fldr, mdl_flnm_json), psh_typ='json')
-    train_model(snd_fldr, meta_fl, fltr_prcnt=0.5, otpt_flnm=os.path.join(otpt_fldr, mdl_flnm_pkl), psh_typ='pickle')
+    if sys.argv[1] == 'train':
+        print("TRAINING")
+        # train_model(snd_fldr, meta_fl, fltr_prcnt=0.5, otpt_flnm=os.path.join(otpt_fldr, mdl_flnm_json), psh_typ='json')
+        train_model(snd_fldr, meta_fl, fltr_prcnt=0.5, otpt_flnm=os.path.join(otpt_fldr, mdl_flnm_pkl), psh_typ='pickle')
+    if sys.argv[1] == 'validate':
+        print("VALIDATING")
+        # read files
+        vldt_mdl(os.path.join(otpt_fldr, mdl_flnm_json), fl_typ = 'json')
+        vldt_mdl(os.path.join(otpt_fldr, mdl_flnm_pkl), fl_typ = 'pickle')
+
     
     end_tm = time.time()
     print(f"This scirpt took {end_tm-strt_tm} seconds to run.")
+    
     
 
