@@ -55,7 +55,7 @@ def tst_fltr_prcss(data_loc):
             keep_tf = False
         return keep_tf, rslts
     
-    data_dct_lst = data_prcss.fltr_prcss_fldr(fltr_fnct, 0.75)   
+    data_dct_lst = data_prcss.fltr_prcss_fldr(fltr_fnct, [0.75])   
     for vl in data_dct_lst[:5]:
         print(vl)
     snd_end_tm = time.time()

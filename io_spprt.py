@@ -57,11 +57,12 @@ class ProcessDataIO(DataIO):
         self.fldr = ""
         super().__init__()
         
-    def fltr_prcss_fldr(self, fltr_prcss_fnct, fltr_prcnt):
+    def fltr_prcss_fldr(self, fltr_prcss_fnct, fnctn_inpt=[]):
         data_dct_lst = []
         for flnm in os.listdir(self.fldr):
             if os.path.isfile(os.path.join(self.fldr, flnm)):
-                keep_tf, rstls = fltr_prcss_fnct(os.path.join(self.fldr, flnm), fltr_prcnt)
+                tmp_fnctn_inpt = [flnm]+ fnctn_inpt
+                keep_tf, rstls = fltr_prcss_fnct(*tmp_fnctn_inpt)
                 if keep_tf:
                     data_dct_lst.append(rstls)
         return data_dct_lst
