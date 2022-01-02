@@ -36,6 +36,7 @@ UPDATE:
     (3) calculate accuracy
 """
 
+import concurrent.futures
 import json
 import numpy as np
 import os
@@ -45,6 +46,9 @@ import sys
 import time
 
 import io_spprt as ios
+import mtrc_spprt as mspprt
+import ml_kNN as kNN
+
 
 # kNN example data is stored in a folder
 # we will filter the folder as data is entered to get the training model
@@ -59,6 +63,7 @@ def fltr_fnct(flnm, fldr, fltr_prcnt):
     else:
         keep_tf = False
     return keep_tf, rslts
+
 
 def train_model(fldr, meta_fl, fltr_prcnt, otpt_flnm, psh_typ):
     data_meta = ios.DataIO()
@@ -92,23 +97,63 @@ def train_model(fldr, meta_fl, fltr_prcnt, otpt_flnm, psh_typ):
     
     return None
 
-def vldt_mdl(mdl_fl, fl_typ):
-    if fl_typ == 'json':
-        with open(mdl_fl, 'r') as f:
-            mdl_dct_lst = json.load(f)
-            for vl in mdl_dct_lst:
-                vl['data'] = np.array(vl['data'], dtype = 'int16')
-            print(len(mdl_dct_lst))
-    elif fl_typ == 'pickle':
-        with open(mdl_fl, 'rb') as f:
-            mdl_dct_lst = pkl.load(f)
+def vldt_mdl(mdl_fl, data_fldr, fl_typ):
+    print("Getting models")
+    knn = kNN.ml_kNN(5)
+    ms = mspprt.MtrcSpprt()
+    
+    knn.gt_mdl(mdl_fl, fl_typ, select_rule='mode', d_fnctn=ms.l2)
 
-        print(len(mdl_dct_lst))
-    # TODO load meta data
-    # TODO build knn classifier
-    # TODO build analysis tool
-    # TODO build accuracy tools
-            
+    print(len(knn.mdl_dct_lst))
+    print(knn.mdl_dct_lst[0])
+    print(knn.slct_rl)
+    print(knn.d)
+    
+    print("Getting validation data.")
+    # find test list
+    tst_lst = [vl['flnm'] for vl in knn.mdl_dct_lst]
+    print(len(tst_lst))
+    # for sample data set, read in everything and then filter out the tst_lst
+    data_io = ios.DataIO()
+    data_io.add_fldr(data_fldr)
+    vldt_dct_lst = [vl for vl in data_io.rd_snd(sngl_fl=False) if vl['flnm'] not in tst_lst]
+    print(len(vldt_dct_lst))
+    print(vldt_dct_lst[0])
+    
+    print("Making predictions")
+    parallel_tf = True
+    if parallel_tf:
+        workers = os.cpu_count()
+        tst_ont_lst = [tst_pnt for tst_pnt in vldt_dct_lst]
+        with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as executor:
+            rslts = executor.map(knn.exct_mdl, tst_ont_lst)
+    else:
+        rslts = []
+        for tst_pnt in vldt_dct_lst:
+            tst_id, tst_lbl_dct, tst_lbls = knn.exct_mdl(tst_pnt)
+            rslts.append([tst_id, tst_lbl_dct, tst_lbls])
+    
+    print("Checking accuracy")
+    data_meta = ios.DataIO()
+    data_meta.add_flnm(meta_fl)
+    meta_data = data_meta.rd_csv(separator=',')
+    meta_map = {vl['filename']: vl['category'] for vl in meta_data}
+    
+    rght_lst,wrng_lst = [], []
+    unrslvd_lst = []
+    
+    for vl in rslts:
+        if len(vl[2]) == 1:
+            if vl[2][0] == meta_map[vl[0]]:
+                rght_lst.append(vl[0])
+            else:
+                wrng_lst.append(vl[0])
+        else:
+            unrslvd_lst.append(vl[0])
+    
+    print(f"There are {len(rght_lst)} correct results, {len(rght_lst)/len(meta_map)}%")
+    print(f"There are {len(wrng_lst)} misclassfied results, {len(wrng_lst)/len(meta_map)}%")            
+    print(f"There are {len(unrslvd_lst)} unreseolved results, {len(unrslvd_lst)/len(meta_map)}%")   
 
 if __name__ == "__main__":
     strt_tm = time.time()
@@ -127,8 +172,8 @@ if __name__ == "__main__":
     if sys.argv[1] == 'validate':
         print("VALIDATING")
         # read files
-        vldt_mdl(os.path.join(otpt_fldr, mdl_flnm_json), fl_typ = 'json')
-        vldt_mdl(os.path.join(otpt_fldr, mdl_flnm_pkl), fl_typ = 'pickle')
+        # vldt_mdl(os.path.join(otpt_fldr, mdl_flnm_json), fl_typ = 'json')
+        vldt_mdl(os.path.join(otpt_fldr, mdl_flnm_pkl), snd_fldr, fl_typ = 'pickle')
 
     
     end_tm = time.time()
