@@ -32,22 +32,29 @@ class ml_kNN():
         nn = {}
         lbl = ''
         dst_lst = []
+        
+        # helps watch parallelization complete
+        if type(tst_pnt) == tuple:
+            print(tst_pnt[0])
+            tst_pnt = tst_pnt[1]
+        
         for mdl_vls in self.mdl_dct_lst:
             dst = self.d(tst_pnt['data'], mdl_vls['data'])
             if dst in dst_lst:
-                nn[dst].append(mdl_vls['flnm'])
+                nn[dst].append(mdl_vls['label'])
             else:
                 if len(dst_lst) < self.k:
                     dst_lst.append(dst)
                     dst_lst.sort()
                     nn.setdefault(dst, [])
-                    nn[dst].append(mdl_vls['flnm'])
+                    nn[dst].append(mdl_vls['label'])
                 else:
                     if dst < dst_lst[-1]:
                         nn.pop(dst_lst[-1])
                         dst_lst = [dst] + dst_lst[:-1]
+                        dst_lst.sort()
                         nn.setdefault(dst, [])
-                        nn[dst].append(mdl_vls['flnm'])                       
+                        nn[dst].append(mdl_vls['label'])                       
                     
         if self.slct_rl == 'mode':
             lbl_lst = []

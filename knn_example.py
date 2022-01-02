@@ -64,6 +64,30 @@ def fltr_fnct(flnm, fldr, fltr_prcnt):
         keep_tf = False
     return keep_tf, rslts
 
+def exct_mdl_tst_pnt(mdl_fl, fl_typ, k, tst_fl):
+    print("Getting models")
+    knn = kNN.ml_kNN(k)
+    ms = mspprt.MtrcSpprt()
+    
+    print("Getting model")
+    knn.gt_mdl(mdl_fl, fl_typ, select_rule='mode', d_fnctn=ms.l2)
+
+    print(len(knn.mdl_dct_lst))
+    print(knn.mdl_dct_lst[0])
+    print(knn.slct_rl)
+    print(knn.d)
+    
+    print("Getting test file")
+    data_io = ios.DataIO()
+    data_io.add_flnm(tst_fl)
+    print(data_io.flnm)
+    samplerate, data_obj = data_io.rd_snd(sngl_fl=True)
+    tst_pnt = {'flnm': tst_fl, 'smpl_rt': samplerate, 'data': data_obj}
+    tst_id, tst_lbl_dct, tst_lbls = knn.exct_mdl(tst_pnt)
+    print(f'The file is: {tst_id}')
+    print(f'The label values are: {tst_lbl_dct}')
+    print(f'The labels are: {tst_lbls}')
+
 
 def train_model(fldr, meta_fl, fltr_prcnt, otpt_flnm, psh_typ):
     data_meta = ios.DataIO()
@@ -124,9 +148,9 @@ def vldt_mdl(mdl_fl, data_fldr, fl_typ):
     parallel_tf = True
     if parallel_tf:
         workers = os.cpu_count()
-        tst_ont_lst = [tst_pnt for tst_pnt in vldt_dct_lst]
-        with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as executor:
-            rslts = executor.map(knn.exct_mdl, tst_ont_lst)
+        tst_pnt_lst = [(idx, tst_pnt) for idx, tst_pnt in enumerate(vldt_dct_lst)]
+        with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
+            rslts = executor.map(knn.exct_mdl, tst_pnt_lst, chunksize=len(tst_pnt_lst)/10*workers)
     else:
         rslts = []
         for tst_pnt in vldt_dct_lst:
@@ -174,7 +198,10 @@ if __name__ == "__main__":
         # read files
         # vldt_mdl(os.path.join(otpt_fldr, mdl_flnm_json), fl_typ = 'json')
         vldt_mdl(os.path.join(otpt_fldr, mdl_flnm_pkl), snd_fldr, fl_typ = 'pickle')
-
+    if sys.argv[1] == 'execute':
+        print("EXECUTING")
+        tst_fl = input("Enter test file contained in the data folder.")
+        exct_mdl_tst_pnt(os.path.join(otpt_fldr, mdl_flnm_pkl), fl_typ = 'pickle', k=5, tst_fl=os.path.join(snd_fldr, tst_fl))
     
     end_tm = time.time()
     print(f"This scirpt took {end_tm-strt_tm} seconds to run.")
