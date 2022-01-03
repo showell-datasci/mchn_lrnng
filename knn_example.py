@@ -52,19 +52,19 @@ import ml_kNN as kNN
 
 # kNN example data is stored in a folder
 # we will filter the folder as data is entered to get the training model
-def fltr_fnct(flnm, fldr, fltr_prcnt):
+def fltr_fnct(flnm, fldr, fltr_prcnt, fft_tf=False):
     data_prcss = ios.ProcessDataIO()
     rslts= {}
     if random.random() > fltr_prcnt:
         data_prcss.add_flnm(os.path.join(fldr,flnm))
-        sample_rate, data = data_prcss.rd_snd(True)
+        sample_rate, data = data_prcss.rd_snd(True, fft_tf=fft_tf)
         rslts = {'flnm': flnm, 'smpl_rt': sample_rate, 'data': data}
         keep_tf = True
     else:
         keep_tf = False
     return keep_tf, rslts
 
-def exct_mdl_tst_pnt(mdl_fl, fl_typ, k, tst_fl):
+def exct_mdl_tst_pnt(mdl_fl, fl_typ, k, tst_fl, fft_tf=False):
     print("Getting models")
     knn = kNN.ml_kNN(k)
     ms = mspprt.MtrcSpprt()
@@ -81,7 +81,7 @@ def exct_mdl_tst_pnt(mdl_fl, fl_typ, k, tst_fl):
     data_io = ios.DataIO()
     data_io.add_flnm(tst_fl)
     print(data_io.flnm)
-    samplerate, data_obj = data_io.rd_snd(sngl_fl=True)
+    samplerate, data_obj = data_io.rd_snd(sngl_fl=True, fft_tf=fft_tf)
     tst_pnt = {'flnm': tst_fl, 'smpl_rt': samplerate, 'data': data_obj}
     tst_id, tst_lbl_dct, tst_lbls = knn.exct_mdl(tst_pnt)
     print(f'The file is: {tst_id}')
@@ -89,14 +89,14 @@ def exct_mdl_tst_pnt(mdl_fl, fl_typ, k, tst_fl):
     print(f'The labels are: {tst_lbls}')
 
 
-def train_model(fldr, meta_fl, fltr_prcnt, otpt_flnm, psh_typ):
+def train_model(fldr, meta_fl, fltr_prcnt, otpt_flnm, psh_typ, fft_tf=False):
     data_meta = ios.DataIO()
     data_meta.add_flnm(meta_fl)
     meta_data = data_meta.rd_csv(separator=',')
     meta_map = {vl['filename']: vl['category'] for vl in meta_data}
     data_prcss = ios.ProcessDataIO()
     data_prcss.add_fldr(fldr)
-    data_dct_lst = data_prcss.fltr_prcss_fldr(fltr_fnct, [fldr, fltr_prcnt])
+    data_dct_lst = data_prcss.fltr_prcss_fldr(fltr_fnct, [fldr, fltr_prcnt, fft_tf])
     # making use of the mutability of dictionaries
     for vl in data_dct_lst:
         vl['label'] = meta_map[vl['flnm']]
@@ -121,9 +121,9 @@ def train_model(fldr, meta_fl, fltr_prcnt, otpt_flnm, psh_typ):
     
     return None
 
-def vldt_mdl(mdl_fl, data_fldr, fl_typ):
+def vldt_mdl(mdl_fl, data_fldr, fl_typ, fft_tf=False):
     print("Getting models")
-    knn = kNN.ml_kNN(5)
+    knn = kNN.ml_kNN(17)
     ms = mspprt.MtrcSpprt()
     
     knn.gt_mdl(mdl_fl, fl_typ, select_rule='mode', d_fnctn=ms.l2)
@@ -140,10 +140,12 @@ def vldt_mdl(mdl_fl, data_fldr, fl_typ):
     # for sample data set, read in everything and then filter out the tst_lst
     data_io = ios.DataIO()
     data_io.add_fldr(data_fldr)
-    vldt_dct_lst = [vl for vl in data_io.rd_snd(sngl_fl=False) if vl['flnm'] not in tst_lst]
+    vldt_dct_lst = [vl for vl in data_io.rd_snd(sngl_fl=False, fft_tf=fft_tf) if vl['flnm'] not in tst_lst]
     print(len(vldt_dct_lst))
     print(vldt_dct_lst[0])
     
+    # TODO add variable
+    vldt_dct_lst = vldt_dct_lst[:20]
     print("Making predictions")
     parallel_tf = True
     if parallel_tf:
@@ -175,9 +177,9 @@ def vldt_mdl(mdl_fl, data_fldr, fl_typ):
         else:
             unrslvd_lst.append(vl[0])
     
-    print(f"There are {len(rght_lst)} correct results, {len(rght_lst)/len(meta_map)}%")
-    print(f"There are {len(wrng_lst)} misclassfied results, {len(wrng_lst)/len(meta_map)}%")            
-    print(f"There are {len(unrslvd_lst)} unreseolved results, {len(unrslvd_lst)/len(meta_map)}%")   
+    print(f"There are {len(rght_lst)} correct results, {len(rght_lst)/len(vldt_dct_lst)}%")
+    print(f"There are {len(wrng_lst)} misclassfied results, {len(wrng_lst)/len(vldt_dct_lst)}%")            
+    print(f"There are {len(unrslvd_lst)} unreseolved results, {len(unrslvd_lst)/len(vldt_dct_lst)}%")   
 
 if __name__ == "__main__":
     strt_tm = time.time()
@@ -185,23 +187,33 @@ if __name__ == "__main__":
     snd_flnm = r'/home/deadpool/Projects/MCHN_LRNNG/DATA/ESC-50-master/audio/1-137-A-32.wav'
     snd_fldr = r'/home/deadpool/Projects/MCHN_LRNNG/DATA/ESC-50-master/audio/'
     otpt_fldr = r'/home/deadpool/Projects/MCHN_LRNNG/DATA/ESC-50-master/models/'
-    mdl_flnm_json = 'knn.json'
-    mdl_flnm_pkl = 'knn.pkl'
+    fft_use = sys.argv[2]
+    if fft_use == 'fft':
+        fft_tf = True
+    else:
+        fft_tf = False
+    
+    if fft_tf:
+        mdl_flnm_json = 'knn_fft.json'
+        mdl_flnm_pkl = 'knn_fft.pkl'
+    else:
+        mdl_flnm_json = 'knn.json'
+        mdl_flnm_pkl = 'knn.pkl'
 
 
     if sys.argv[1] == 'train':
         print("TRAINING")
         # train_model(snd_fldr, meta_fl, fltr_prcnt=0.5, otpt_flnm=os.path.join(otpt_fldr, mdl_flnm_json), psh_typ='json')
-        train_model(snd_fldr, meta_fl, fltr_prcnt=0.5, otpt_flnm=os.path.join(otpt_fldr, mdl_flnm_pkl), psh_typ='pickle')
+        train_model(snd_fldr, meta_fl, fltr_prcnt=0.5, otpt_flnm=os.path.join(otpt_fldr, mdl_flnm_pkl), psh_typ='pickle', fft_tf=fft_tf)
     if sys.argv[1] == 'validate':
         print("VALIDATING")
         # read files
         # vldt_mdl(os.path.join(otpt_fldr, mdl_flnm_json), fl_typ = 'json')
-        vldt_mdl(os.path.join(otpt_fldr, mdl_flnm_pkl), snd_fldr, fl_typ = 'pickle')
+        vldt_mdl(os.path.join(otpt_fldr, mdl_flnm_pkl), snd_fldr, fl_typ = 'pickle', fft_tf=fft_tf)
     if sys.argv[1] == 'execute':
         print("EXECUTING")
         tst_fl = input("Enter test file contained in the data folder.")
-        exct_mdl_tst_pnt(os.path.join(otpt_fldr, mdl_flnm_pkl), fl_typ = 'pickle', k=5, tst_fl=os.path.join(snd_fldr, tst_fl))
+        exct_mdl_tst_pnt(os.path.join(otpt_fldr, mdl_flnm_pkl), fl_typ = 'pickle', k=5, tst_fl=os.path.join(snd_fldr, tst_fl), fft_tf=fft_tf)
     
     end_tm = time.time()
     print(f"This scirpt took {end_tm-strt_tm} seconds to run.")

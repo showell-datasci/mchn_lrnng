@@ -21,41 +21,42 @@ def tst_data_io_csv(flnm):
     for data_vls in data_dct_lst:
         print(data_vls)
         
-def tst_data_io_snd(data_loc, sngl_fl):
+def tst_data_io_snd(data_loc, sngl_fl, fft_tf=False):
     data_io = ios.DataIO()
     if sngl_fl:
         data_io.add_flnm(data_loc)
         print(data_io.flnm)
-        samplerate, data_obj = data_io.rd_snd(sngl_fl=sngl_fl)
+        samplerate, data_obj = data_io.rd_snd(sngl_fl=sngl_fl, fft_tf=fft_tf)
         print(samplerate)
         print(data_obj)
     else:
         snd_strt_tm = time.time()
         data_io.add_fldr(data_loc)
         print(data_io.fldr)
-        data_dct_lst = data_io.rd_snd(sngl_fl=sngl_fl)
+        data_dct_lst = data_io.rd_snd(sngl_fl=sngl_fl,fft_tf=fft_tf)
         for vl in data_dct_lst[:5]:
             print(vl)
         snd_end_tm = time.time()
         print(f'It took {snd_end_tm - snd_strt_tm} to get sound files.')
 
 
-def tst_fltr_prcss(data_loc):
+def tst_fltr_prcss(data_loc, fft_tf):
     data_prcss = ios.ProcessDataIO()
     data_prcss.add_fldr(data_loc)
     snd_strt_tm = time.time()
-    def fltr_fnct(flnm, fltr_prcnt):
+    def fltr_fnct(flnm, fldr, fltr_prcnt):
+        data_prcss_int = ios.ProcessDataIO()
         rslts= {}
         if random.random() > fltr_prcnt:
-            data_prcss.add_flnm(flnm)
-            sample_rate, data = data_prcss.rd_snd(True)
+            data_prcss_int.add_flnm(os.path.join(fldr, flnm))
+            sample_rate, data = data_prcss_int.rd_snd(True, fft_tf=fft_tf)
             rslts = {'flnm': flnm, 'smpl_rt': sample_rate, 'data': data}
             keep_tf = True
         else:
             keep_tf = False
         return keep_tf, rslts
     
-    data_dct_lst = data_prcss.fltr_prcss_fldr(fltr_fnct, [0.75])   
+    data_dct_lst = data_prcss.fltr_prcss_fldr(fltr_fnct, [data_prcss.fldr, 0.75])   
     for vl in data_dct_lst[:5]:
         print(vl)
     snd_end_tm = time.time()
@@ -77,10 +78,12 @@ if __name__ == "__main__":
     tst_data_io_snd(snd_flnm, sngl_fl=True)
     
     print("Testing sound data folder")
-    tst_data_io_snd(snd_fldr, sngl_fl=False)
+    tst_data_io_snd(snd_fldr, sngl_fl=False, fft_tf=False)
+    tst_data_io_snd(snd_fldr, sngl_fl=False, fft_tf=True)
     
     print("Testing filtering and processing of sound data folder")
-    tst_fltr_prcss(snd_fldr)
+    tst_fltr_prcss(snd_fldr, fft_tf=True)
+    tst_fltr_prcss(snd_fldr, fft_tf=False)
     
     end_tm = time.time()
     print(f"This scirpt took {end_tm-strt_tm} seconds to run.")

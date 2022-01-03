@@ -10,6 +10,7 @@ Script to hold metrics.
 
 import numpy as np
 # note use of numpy longdouble
+# note that abs is used to handle complex numbers
 
 class MtrcSpprt():
     def __init__(self):
@@ -21,7 +22,7 @@ class MtrcSpprt():
         
     
     def l2(self, arry0, arry1):
-        d = np.sqrt(np.sum(np.power(arry0-arry1, 2, dtype=np.longdouble)))
+        d = np.sqrt(np.sum(np.power(np.abs(arry0-arry1), 2, dtype=np.longdouble)))
         return d
     
     def l_inf(self, arry0, arry1):

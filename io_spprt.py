@@ -7,6 +7,7 @@ script to contain io class
 @author: deadpool
 """
 import os
+from scipy.fft import fft as sci_fft
 from scipy.io import wavfile
 
 class DataIO():
@@ -38,15 +39,19 @@ class DataIO():
                 data_dct_lst.append({ hdr_dct[idx]: data_vl for idx, data_vl in enumerate(ln.strip().split(separator)) })
         return data_dct_lst
     
-    def rd_snd(self, sngl_fl=True):
+    def rd_snd(self, sngl_fl=True, fft_tf=False):
         if sngl_fl:
             samplerate, data_arry = wavfile.read(self.flnm)
+            if fft_tf:
+                data_arry = sci_fft(data_arry)
             return samplerate, data_arry
         else:
             data_dct_lst = []
             for flnm in os.listdir(self.fldr):
                 if os.path.isfile(os.path.join(self.fldr, flnm)):
                     samplerate, data_arry = wavfile.read(os.path.join(self.fldr, flnm))
+                    if fft_tf:
+                        data_arry = sci_fft(data_arry)
                     data_dct_lst.append({'flnm': flnm, 'smpl_rt': samplerate, 'data': data_arry})
             return data_dct_lst
             
