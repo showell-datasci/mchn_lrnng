@@ -123,7 +123,7 @@ def train_model(fldr, meta_fl, fltr_prcnt, otpt_flnm, psh_typ, fft_tf=False):
 
 def vldt_mdl(mdl_fl, data_fldr, fl_typ, fft_tf=False):
     print("Getting models")
-    knn = kNN.ml_kNN(17)
+    knn = kNN.ml_kNN(3)
     ms = mspprt.MtrcSpprt()
     
     knn.gt_mdl(mdl_fl, fl_typ, select_rule='mode', d_fnctn=ms.l2)
@@ -177,9 +177,9 @@ def vldt_mdl(mdl_fl, data_fldr, fl_typ, fft_tf=False):
         else:
             unrslvd_lst.append(vl[0])
     
-    print(f"There are {len(rght_lst)} correct results, {len(rght_lst)/len(vldt_dct_lst)}%")
-    print(f"There are {len(wrng_lst)} misclassfied results, {len(wrng_lst)/len(vldt_dct_lst)}%")            
-    print(f"There are {len(unrslvd_lst)} unreseolved results, {len(unrslvd_lst)/len(vldt_dct_lst)}%")   
+    print(f"There are {len(rght_lst)} correct results, {100*len(rght_lst)/len(vldt_dct_lst)}%")
+    print(f"There are {len(wrng_lst)} misclassfied results, {100*len(wrng_lst)/len(vldt_dct_lst)}%")            
+    print(f"There are {len(unrslvd_lst)} unreseolved results, {100*len(unrslvd_lst)/len(vldt_dct_lst)}%")   
 
 if __name__ == "__main__":
     strt_tm = time.time()
