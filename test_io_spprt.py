@@ -84,7 +84,9 @@ if __name__ == "__main__":
     print("Testing filtering and processing of sound data folder")
     tst_fltr_prcss(snd_fldr, fft_tf=True)
     tst_fltr_prcss(snd_fldr, fft_tf=False)
-    
+
+    data_io.wrt_snd(new_signal.astype(np.int16))
+       
     end_tm = time.time()
     print(f"This scirpt took {end_tm-strt_tm} seconds to run.")
     

@@ -56,12 +56,16 @@ class DataIO():
                         data_arry = sci_fft(data_arry)
                     data_dct_lst.append({'flnm': flnm, 'smpl_rt': samplerate, 'data': data_arry})
             return data_dct_lst
-    def wrt_snd(self, data_array, smpl_r=44100, sngl_fl=True, fft_tf=False):
+        
+        
+    def wrt_snd(self, data_array, sngl_fl=True, fft_tf=False):
         #do I need to un-do a fft if it was applied?
         if sngl_fl:
-            wavfile.write(self.flnm, smpl_r, data_array)
+            wavfile.write(data_array['flnm'], data_array['smpl_r'], data_array['data'].astype(np.int16))
         else:
-            print("pass")
+            for ele in data_array:
+                wavfile.write(ele['flnm'], ele['smpl_r'], ele['data'].astype(np.int16))
+            
             
             
 
