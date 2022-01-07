@@ -6,9 +6,11 @@ script to contain io class
 
 @author: deadpool
 """
+import numpy as np
 import os
 from scipy.fft import fft as sci_fft
 from scipy.io import wavfile
+
 
 class DataIO():
     """
@@ -54,6 +56,13 @@ class DataIO():
                         data_arry = sci_fft(data_arry)
                     data_dct_lst.append({'flnm': flnm, 'smpl_rt': samplerate, 'data': data_arry})
             return data_dct_lst
+    def wrt_snd(self, data_array, smpl_r=44100, sngl_fl=True, fft_tf=False):
+        #do I need to un-do a fft if it was applied?
+        if sngl_fl:
+            wavfile.write(self.flnm, smpl_r, data_array)
+        else:
+            print("pass")
+            
             
 
 class ProcessDataIO(DataIO):

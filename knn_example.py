@@ -183,10 +183,11 @@ def vldt_mdl(mdl_fl, data_fldr, fl_typ, fft_tf=False):
 
 if __name__ == "__main__":
     strt_tm = time.time()
-    meta_fl = r'/home/deadpool/Projects/MCHN_LRNNG/DATA/ESC-50-master/meta/esc50.csv'
-    snd_flnm = r'/home/deadpool/Projects/MCHN_LRNNG/DATA/ESC-50-master/audio/1-137-A-32.wav'
-    snd_fldr = r'/home/deadpool/Projects/MCHN_LRNNG/DATA/ESC-50-master/audio/'
-    otpt_fldr = r'/home/deadpool/Projects/MCHN_LRNNG/DATA/ESC-50-master/models/'
+    meta_fl = r'/home/carl1/Projects/ESC-50-master/meta/esc50.csv'
+    snd_flnm = r'/home/carl1/Projects/ESC-50-master/audio/1-137-A-32.wav'
+    snd_fldr = r'/home/carl1/Projects/ESC-50-master/audio/'
+    otpt_fldr = r'/home/carl1/Projects/ESC-50-master/models/'
+    
     fft_use = sys.argv[2]
     if fft_use == 'fft':
         fft_tf = True
