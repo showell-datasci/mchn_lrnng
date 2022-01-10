@@ -14,7 +14,7 @@ import numpy as np
 
 class MtrcSpprt():
     def __init__(self):
-        self.mtrc_nm = ''
+        self.r = ''
         
     def l1(self, arry0, arry1):
         d = np.sum(np.abs(arry0-arry1, dtype=np.longdouble))
@@ -35,4 +35,19 @@ class MtrcSpprt():
     
     def set_r(self, r):
         self.r = r
+        
+class MltPrdcts():
+    """
+    Support class for holding dot products
+    """
+    def __init__(self):
+        self.prdct_nm = 'dot'
+        
+    def dot(self, arry0, arry1):
+        # standard dot product
+        # lots of ways to do this!
+        # including np.dot!
+        vl = np.sum(arry0*arry1)
+        return vl
+        
         
