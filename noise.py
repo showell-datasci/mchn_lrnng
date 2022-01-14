@@ -87,7 +87,30 @@ if __name__ == "__main__":
     t0 = time.time()
     
     
-    if sys.argv[1] == "add_note":
+    if sys.argv[1] == "add_note_sngl":
+        
+        #insert seems to inssert without overriding, but is in every other index
+        wav_file_ex = r'/home/carl1/Projects/ESC-50-master/audio/1-19898-C-41.wav'
+        data_io = ios.DataIO()
+        data_io.add_flnm(wav_file_ex)
+        
+        samplerate, data_obj = data_io.rd_snd(sngl_fl=True, fft_tf=False)
+        print(data_obj)
+        
+        amp = np.max(data_obj)*0.5
+        
+        a_wave = get_wave(samplerate, freq=440, amp=amp, duration=5)
+        
+        new_signal = data_obj + a_wave
+        
+        new_flnm = r'/home/carl1/Projects/ESC-50-master/audio_a_note/1-19898-C-41_add_note.wav'
+        print(new_signal)
+        
+        data_array = {'flnm': new_flnm, 'smpl_r': samplerate, 'data': new_signal}
+        data_io.wrt_snd(data_array)
+    
+    
+    if sys.argv[1] == "append_note":
         
         wav_file_ex = r'/home/carl1/Projects/ESC-50-master/audio/1-22804-A-46.wav'
         data_io = ios.DataIO()
@@ -246,3 +269,26 @@ if __name__ == "__main__":
         print(np.max(a_wave)) # 4096
         print(np.min(a_wave)) # -4096
         write('a_note.wav', samplerate, a_wave)
+        
+    if sys.argv[1] == 'two_notes':
+        
+        samplerate = 44100
+        duration = 1.0
+        amp = 3000
+        # To get a 1 second long wave of frequency 440Hz
+        a_wave = get_wave(samplerate, 440, amp,duration)
+        c_wave = get_wave(samplerate, 261.63, amp, duration)
+        
+        third = a_wave + c_wave        
+        
+        #wave features
+        print(len(a_wave), len(c_wave)) # 44100
+        print(np.max(a_wave), np.max(c_wave)) # 4096
+        print(np.min(a_wave), np.min(c_wave)) # -4096
+        
+        fn = r'/home/carl1/Projects/ESC-50-master/audio_a_note/third_ac.wav'
+        write(fn, samplerate, third)
+        
+
+        
+        
