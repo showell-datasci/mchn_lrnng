@@ -42,13 +42,13 @@ def make_prediction(inpt_arry, wghts, bias):
 if __name__ == "__main__":
     strt_tm = time.time()
     print("Looking at sound data.")
-    flnm = r'/home/deadpool/Projects/MCHN_LRNNG/DATA/ESC-50-master/meta/esc50.csv'
+    flnm = r'/home/deadpool2/Projects/MCHN_LRNNG/DATA/ESC-50-master/meta/esc50.csv'
     anlyss_snd(flnm)
     print("We want to pick one category to make a prediction. It is this category or not.")
     cat_select = 'chainsaw'
-    print("We will use {cat_select}")
+    print(f"We will use {cat_select}")
     print("Getting the sound data.")
-    snd_fldr = r'/home/deadpool/Projects/MCHN_LRNNG/DATA/ESC-50-master/audio/'
+    snd_fldr = r'/home/deadpool2/Projects/MCHN_LRNNG/DATA/ESC-50-master/audio/'
     
     
     

@@ -25,10 +25,10 @@ class NeuralNetworkSimple:
             layer_1 = ms_cls.dot(inpt_arry, self.wghts) + self.bias
             prdct_vl = self.prdctn(inpt_arry)
             derror_dprdctn = 2*(prdct_vl - trgt_vl)
-            dprdctn_dlayer1 = self.sigmoid_drvtv(layer_1)
+            dprdctn_dlayer1 = self.sigmoid_drvtv(layer_1) 
             dlayer1_dbias = 1
             # 0, 1 is based on tehe taret value being 0 or 1
-            dlayer1_dwghts = (0*self.wghts) + (1+inpt_arry)
+            dlayer1_dwghts = (0*self.wghts) + (1*inpt_arry)
             
             derror_dbias = derror_dprdctn*dprdctn_dlayer1*dlayer1_dbias
             derror_dwghts = derror_dprdctn*dprdctn_dlayer1*dlayer1_dwghts
