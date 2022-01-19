@@ -38,6 +38,60 @@ def add_gauss_noise(mean, std, data):
     
     return new_signal
 
+def add_noise(sngl_tf, pth):
+    sngl_snd = False #gets mean base don all .wav files
+    if sngl_tf:
+        fldr_nm, file = os.path.split(pth)
+        mean = mean_snd_data(sngl_snd, fldr_nm)
+
+        data_io = ios.DataIO()
+        data_io.add_flnm(pth)
+        
+        samplerate, data_obj = data_io.rd_snd(sngl_fl=sngl_tf, fft_tf=False)
+        
+        # print(data_obj)
+        
+        new_signal = add_gauss_noise(mean, std, data_obj)
+        
+        fn_lbl = '_noise.wav'
+        path, folder = os.path.split(fldr_nm)
+        new_flnm = os.path.join(path, 'audio_noise', file[:-4]+fn_lbl)
+        
+        # print(new_signal)
+        
+        data_array = {'flnm': new_flnm, 'smpl_r': samplerate, 'data': new_signal}
+        
+        data_io.wrt_snd(data_array)
+        
+    else:
+        mean = mean_snd_data(sngl_snd, pth)
+        
+        data_io = ios.DataIO()
+        data_io.add_fldr(fldr)
+        data_dct_lst = data_io.rd_snd(sngl_fl=sngl_tf, fft_tf=False)
+        
+        new_data_dct_lst = []
+        
+        
+        if pth[-1] == '/':
+            pth = pth[:-1]
+           
+        path, folder = os.path.split(pth)    
+        nw_fldr = os.path.join(path, 'audio_noise')
+        
+        for ele in data_dct_lst:
+            
+            new_signal = add_gauss_noise(mean, std, ele['data'])
+            
+            new_flnm = os.path.join(nw_fldr, ele['flnm'][:-4]+'_noise.wav')
+            
+            data_dct = {'flnm': new_flnm, 'smpl_r': ele['smpl_rt'], 'data': new_signal}
+            
+            new_data_dct_lst.append(data_dct)
+            
+        data_io.wrt_snd(new_data_dct_lst, sngl_fl=False)
+    
+
 def add_tone(fn, action, sngl_fl=True, duration=1):
     
     #appends tone to sound bit
@@ -86,18 +140,18 @@ def add_tone(fn, action, sngl_fl=True, duration=1):
     return data_array
 
 
-def mean_snd_data(sngl_snd, data):
+def mean_snd_data(sngl_snd, pth):
     
     data_io = ios.DataIO()
     
     if sngl_snd:
-        data_io.add_flnm(data) #data is single filename
+        data_io.add_flnm(pth) #data is single filename
         samplerate, data_obj = data_io.rd_snd(sngl_fl=True, fft_tf=False)
        
         avg_snd_data = np.mean(data_obj)
 
     else:
-        data_io.add_fldr(fldr_nm)
+        data_io.add_fldr(pth)
         data_dct_lst = data_io.rd_snd(sngl_fl=False, fft_tf=True)
         
         allmeans = []
@@ -152,25 +206,9 @@ if __name__ == "__main__":
         
         fldr = r'/home/carl1/projects/ESC-50-master/audio/'
         sngl_snd = False
-        mean = mean_snd_data(sngl_snd, fldr)
+        add_noise(sngl_snd, fldr)
         
-        data_io = ios.DataIO()
-        data_io.add_fldr(fldr)
-        data_dct_lst = data_io.rd_snd(sngl_fl=False, fft_tf=False)
-        
-        new_data_dct_lst = []
-        
-        for ele in data_dct_lst:
-            nw_fldr = r'/home/carl1/Projects/ESC-50-master/audio_noise/'
-            new_signal = add_gauss_noise(mean, std, ele['data'])
-            
-            new_flnm = os.path.join(nw_fldr, ele['flnm'][:-4]+'_noise.wav')
-            
-            data_dct = {'flnm': new_flnm, 'smpl_r': ele['smpl_rt'], 'data': new_signal}
-            
-            new_data_dct_lst.append(data_dct)
-            
-        data_io.wrt_snd(new_data_dct_lst, sngl_fl=False)
+
         t1 = time.time()
         print(f'Noise added to all .wav files. Stored in ESC-50-master/audio_noise folder.Took {round(t1-t0, 2)} seconds to run')
     
@@ -186,7 +224,8 @@ if __name__ == "__main__":
     if sys.argv[1] == 'mean':
             
         fldr = r'/home/carl1/projects/ESC-50-master/audio/'
-        avg = mean_snd_data(fldr)
+        sngl_tf = False
+        avg = mean_snd_data(sngl_tf, fldr)
         print(avg)
         
     if sys.argv[1] == "replace_note_sngl":
@@ -204,30 +243,12 @@ if __name__ == "__main__":
             std = 10000
         else:
             std = 100
-        
-        fldr_nm = r'/home/carl1/projects/ESC-50-master/audio/'
-        mean = mean_snd_data(fldr_nm)
-
+            
+        sngl_tf = True
         wav_file_ex = r'/home/carl1/projects/ESC-50-master/audio/1-22804-A-46.wav'
-        data_io = ios.DataIO()
-        data_io.add_flnm(wav_file_ex)
-    
-        samplerate, data_obj = data_io.rd_snd(sngl_fl=True, fft_tf=False)
-        
-        print(data_obj)
-        
-        new_signal = add_gauss_noise(mean, std, data_obj)
-        
-        new_flnm = r'/home/carl1/projects/ESC-50-master/audio_noise/1-22804-A-46_noise.wav'
-        
-        print(new_signal)
-        
-        data_array = {'flnm': new_flnm, 'smpl_r': samplerate, 'data': new_signal}
-        
-        data_io.wrt_snd(data_array)
+        add_noise(sngl_tf, wav_file_ex)
         
         t1 = time.time()
-        
         print(f'Noise added to one .wav files. Stored in ESC-50-master/audio_noise folder. Took {round(t1-t0,2)} seconds to run')
         
     if sys.argv[1] =='sngl_note':
