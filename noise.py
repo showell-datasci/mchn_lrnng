@@ -38,13 +38,53 @@ def add_gauss_noise(mean, std, data):
     
     return new_signal
 
-def add_tone():
-    #add tone to sound bit
-    pass
+def add_tone(fn, action, sngl_fl=True, duration=1):
+    
+    #appends tone to sound bit
+    data_io = ios.DataIO()
+    data_io.add_flnm(wav_file_ex)
+    
+    samplerate, data_obj = data_io.rd_snd(sngl_fl=True, fft_tf=False)
+    # print(data_obj)
+    
+    amp = np.max(data_obj)*0.5
+    
+    a_wave = get_wave(samplerate, freq=440, amp=amp, duration=duration)
+    
+    if action == 'add':
+        new_signal = data_obj + a_wave
+        fn_lbl = '_add_a_note.wav'
+        
+    elif action == 'append':
+        new_signal = np.concatenate((data_obj, a_wave))
+        fn_lbl = '_append_note.wav'
+        
+    elif action == 'insert':
+        indices = np.arange(samplerate, samplerate*2)
+        new_signal = np.insert(data_obj, indices, a_wave)
+        fn_lbl = '_insert_note.wav'
+    
+    elif action == 'replace':
+        indices = np.arange(samplerate, samplerate*2)
+        for indx, i in enumerate(indices):
+            data_obj[i] = a_wave[indx]
+        
+        new_signal = data_obj  
+        fn_lbl = '_replace_note.wav'
+        
+        
+    path, file = os.path.split(fn)
+    path, folder = os.path.split(path)
+    new_flnm = os.path.join(path, 'audio_a_note', file[:-4]+fn_lbl)
+    # print(new_signal)
+    
+    data_array = {'flnm': new_flnm, 'smpl_r': samplerate, 'data': new_signal}
+    data_io.wrt_snd(data_array)
+    
+    print(f'New .wav file in {new_flnm}')
+    
+    return data_array
 
-def insert_tone():
-    #insert toen itno sound bit
-    pass
 
 def mean_snd_data(sngl_snd, data):
     
@@ -90,46 +130,14 @@ if __name__ == "__main__":
     if sys.argv[1] == "add_note_sngl":
         
         #insert seems to inssert without overriding, but is in every other index
-        wav_file_ex = r'/home/carl1/Projects/ESC-50-master/audio/1-19898-C-41.wav'
-        data_io = ios.DataIO()
-        data_io.add_flnm(wav_file_ex)
+        wav_file_ex = r'/home/carl1/projects/ESC-50-master/audio/1-19898-C-41.wav'
+        data_array = add_tone(wav_file_ex, 'add', duration=5)
         
-        samplerate, data_obj = data_io.rd_snd(sngl_fl=True, fft_tf=False)
-        print(data_obj)
-        
-        amp = np.max(data_obj)*0.5
-        
-        a_wave = get_wave(samplerate, freq=440, amp=amp, duration=5)
-        
-        new_signal = data_obj + a_wave
-        
-        new_flnm = r'/home/carl1/Projects/ESC-50-master/audio_a_note/1-19898-C-41_add_note.wav'
-        print(new_signal)
-        
-        data_array = {'flnm': new_flnm, 'smpl_r': samplerate, 'data': new_signal}
-        data_io.wrt_snd(data_array)
-    
     
     if sys.argv[1] == "append_note":
         
-        wav_file_ex = r'/home/carl1/Projects/ESC-50-master/audio/1-22804-A-46.wav'
-        data_io = ios.DataIO()
-        data_io.add_flnm(wav_file_ex)
-        
-        samplerate, data_obj = data_io.rd_snd(sngl_fl=True, fft_tf=False)
-        print(data_obj)
-        
-        amp = np.max(data_obj)*0.5
-        
-        a_wave = get_wave(samplerate, freq=440, amp=amp, duration=1)
-        
-        new_signal = np.concatenate((data_obj, a_wave))
-        new_flnm = r'/home/carl1/Projects/ESC-50-master/audio_a_note/1-22804-A-46_note.wav'
-        print(new_signal)
-        
-        data_array = {'flnm': new_flnm, 'smpl_r': samplerate, 'data': new_signal}
-        data_io.wrt_snd(data_array)
-        
+        wav_file_ex = r'/home/carl1/projects/ESC-50-master/audio/1-22804-A-46.wav'
+        data_array = add_tone(wav_file_ex, 'append')
     
     
     if sys.argv[1] == 'all_noise':
@@ -142,7 +150,7 @@ if __name__ == "__main__":
             std = 100
         
         
-        fldr = r'/home/carl1/Projects/ESC-50-master/audio/'
+        fldr = r'/home/carl1/projects/ESC-50-master/audio/'
         sngl_snd = False
         mean = mean_snd_data(sngl_snd, fldr)
         
@@ -169,60 +177,24 @@ if __name__ == "__main__":
     
     if sys.argv[1] == "insert_note_sngl":
         
-        #insert seems to inssert without overriding, but is in every other index
-        wav_file_ex = r'/home/carl1/Projects/ESC-50-master/audio/1-22804-A-46.wav'
-        data_io = ios.DataIO()
-        data_io.add_flnm(wav_file_ex)
+        # "np.insert" inserts without overriding, but is in every other index
+        wav_file_ex = r'/home/carl1/projects/ESC-50-master/audio/1-22804-A-46.wav'
         
-        samplerate, data_obj = data_io.rd_snd(sngl_fl=True, fft_tf=False)
-        print(data_obj)
+        data_array = add_tone(wav_file_ex,'insert')
         
-        amp = np.max(data_obj)*0.5
-        
-        a_wave = get_wave(samplerate, freq=440, amp=amp, duration=1)
-        
-        indices = np.arange(samplerate, samplerate*2)
-        
-        new_signal = np.insert(data_obj, indices, a_wave)
-        
-        new_flnm = r'/home/carl1/Projects/ESC-50-master/audio_a_note/1-22804-A-46_insert_note.wav'
-        print(new_signal)
-        
-        data_array = {'flnm': new_flnm, 'smpl_r': samplerate, 'data': new_signal}
-        data_io.wrt_snd(data_array)
     
     if sys.argv[1] == 'mean':
             
-        fldr = r'/home/carl1/Projects/ESC-50-master/audio/'
+        fldr = r'/home/carl1/projects/ESC-50-master/audio/'
         avg = mean_snd_data(fldr)
         print(avg)
         
     if sys.argv[1] == "replace_note_sngl":
         
         #insert seems to inssert without overriding, but is in every other index
-        wav_file_ex = r'/home/carl1/Projects/ESC-50-master/audio/1-22804-A-46.wav'
-        data_io = ios.DataIO()
-        data_io.add_flnm(wav_file_ex)
+        wav_file_ex = r'/home/carl1/projects/ESC-50-master/audio/1-22804-A-46.wav'
         
-        samplerate, data_obj = data_io.rd_snd(sngl_fl=True, fft_tf=False)
-        print(data_obj)
-        
-        amp = np.max(data_obj)*0.5
-        
-        a_wave = get_wave(samplerate, freq=440, amp=amp, duration=1)
-        
-        indices = np.arange(samplerate, samplerate*2)
-        
-        for indx, i in enumerate(indices):
-            data_obj[i] = a_wave[indx]
-            
-        new_signal = data_obj    
-        new_flnm = r'/home/carl1/Projects/ESC-50-master/audio_a_note/1-22804-A-46_replace_w_note.wav'
-        print(new_signal)
-        
-        data_array = {'flnm': new_flnm, 'smpl_r': samplerate, 'data': new_signal}
-        data_io.wrt_snd(data_array)   
-        
+        data_array = add_tone(wav_file_ex, 'replace')
         
     if sys.argv[1] == 'sngl_noise':
         
@@ -233,10 +205,10 @@ if __name__ == "__main__":
         else:
             std = 100
         
-        fldr_nm = r'/home/carl1/Projects/ESC-50-master/audio/'
+        fldr_nm = r'/home/carl1/projects/ESC-50-master/audio/'
         mean = mean_snd_data(fldr_nm)
 
-        wav_file_ex = r'/home/carl1/Projects/ESC-50-master/audio/1-22804-A-46.wav'
+        wav_file_ex = r'/home/carl1/projects/ESC-50-master/audio/1-22804-A-46.wav'
         data_io = ios.DataIO()
         data_io.add_flnm(wav_file_ex)
     
@@ -246,7 +218,7 @@ if __name__ == "__main__":
         
         new_signal = add_gauss_noise(mean, std, data_obj)
         
-        new_flnm = r'/home/carl1/Projects/ESC-50-master/audio_noise1/1-22804-A-46_noise.wav'
+        new_flnm = r'/home/carl1/projects/ESC-50-master/audio_noise/1-22804-A-46_noise.wav'
         
         print(new_signal)
         
@@ -256,7 +228,7 @@ if __name__ == "__main__":
         
         t1 = time.time()
         
-        print(f'Noise added to one .wav files. Stored in ESC-50-master/audio_noise1 folder. Took {round(t1-t0,2)} seconds to run')
+        print(f'Noise added to one .wav files. Stored in ESC-50-master/audio_noise folder. Took {round(t1-t0,2)} seconds to run')
         
     if sys.argv[1] =='sngl_note':
         
@@ -268,7 +240,7 @@ if __name__ == "__main__":
         print(len(a_wave)) # 44100
         print(np.max(a_wave)) # 4096
         print(np.min(a_wave)) # -4096
-        write('a_note.wav', samplerate, a_wave)
+        write(r'/home/carl1/projects/ESC-50-master/audio_a_note/a_note.wav', samplerate, a_wave)
         
     if sys.argv[1] == 'two_notes':
         
@@ -286,7 +258,7 @@ if __name__ == "__main__":
         print(np.max(a_wave), np.max(c_wave)) # 4096
         print(np.min(a_wave), np.min(c_wave)) # -4096
         
-        fn = r'/home/carl1/Projects/ESC-50-master/audio_a_note/third_ac.wav'
+        fn = r'/home/carl1/projects/ESC-50-master/audio_a_note/third_ac.wav'
         write(fn, samplerate, third)
         
 
