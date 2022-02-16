@@ -52,11 +52,6 @@ def gt_anlyss_data(lbl_vls, meta_flnm, mdl_fldr, non_lbl_prcnt):
             if random.random() <= use_prctn:
                 other_lbl_dct.setdefault(data_vl['category'], [])
                 other_lbl_dct[data_vl['category']].append(data_vl['filename'])
-
-    for lbl in lbl_flnm_dct:
-        print(lbl, lbl_flnm_dct[lbl])
-    for lbl in other_lbl_dct:
-        print(lbl, other_lbl_dct[lbl])
         
     with open(os.path.join(mdl_fldr, f"analysis_{'_'.join(lbl_vls)}.csv"), 'w') as g:
         g.write('label,file\n')
@@ -70,7 +65,6 @@ def gt_anlyss_data(lbl_vls, meta_flnm, mdl_fldr, non_lbl_prcnt):
     return lbl_flnm_dct, other_lbl_dct
 
 
-
 def make_prediction(inpt_arry, wghts, bias):
     ms_cls = ms.MltPrdcts()
     
@@ -78,6 +72,18 @@ def make_prediction(inpt_arry, wghts, bias):
     layer_2 = fs.sigmoid(layer_1)
     return layer_2
 
+def rd_anlyss_data(fldr, fl_lst, fft_tf=False):
+    data_dct_lst = []
+    # for each of the files we will need to get the sound data
+    
+    
+    return data_dct_lst
+
+
+    for lbl in lbl_flnm_dct:
+        print(lbl, lbl_flnm_dct[lbl])
+    for lbl in other_lbl_dct:
+        print(lbl, other_lbl_dct[lbl])
 if __name__ == "__main__":
     strt_tm = time.time()
     print("Looking at sound data.")
@@ -89,7 +95,11 @@ if __name__ == "__main__":
     print(f"We will use {cat_select}")
     print("Getting the sound data.")
     snd_fldr = r'/home/deadpool2/Projects/MCHN_LRNNG/DATA/ESC-50-master/audio/'
-    gt_anlyss_data(['chainsaw'], meta_flnm=flnm, mdl_fldr=mdl_fldr, non_lbl_prcnt=1)
+    lbl_flnm_dct, other_lbl_dct = gt_anlyss_data(['chainsaw'], meta_flnm=flnm, mdl_fldr=mdl_fldr, non_lbl_prcnt=1)
+    # read in the data
+    print(lbl_flnm_dct)
+    
+    
     # io_cls = ios.DataIO()
     # io_cls.add_fldr(snd_fldr)
     # snd_data = io_cls.rd_snd(sngl_fl=False, fft_tf=True)
