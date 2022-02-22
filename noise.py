@@ -184,13 +184,13 @@ if __name__ == "__main__":
     if sys.argv[1] == "add_note_sngl":
         
         #insert seems to inssert without overriding, but is in every other index
-        wav_file_ex = r'/home/carl1/projects/ESC-50-master/audio/1-19898-C-41.wav'
+        wav_file_ex = r'/home/carl/projects/ESC-50-master/audio/1-19898-C-41.wav'
         data_array = add_tone(wav_file_ex, 'add', duration=5)
         
     
     if sys.argv[1] == "append_note":
         
-        wav_file_ex = r'/home/carl1/projects/ESC-50-master/audio/1-22804-A-46.wav'
+        wav_file_ex = r'/home/carl/projects/ESC-50-master/audio/1-22804-A-46.wav'
         data_array = add_tone(wav_file_ex, 'append')
     
     
@@ -204,7 +204,7 @@ if __name__ == "__main__":
             std = 100
         
         
-        fldr = r'/home/carl1/projects/ESC-50-master/audio/'
+        fldr = r'/home/carl/projects/ESC-50-master/audio/'
         sngl_snd = False
         add_noise(sngl_snd, fldr)
         
@@ -216,14 +216,14 @@ if __name__ == "__main__":
     if sys.argv[1] == "insert_note_sngl":
         
         # "np.insert" inserts without overriding, but is in every other index
-        wav_file_ex = r'/home/carl1/projects/ESC-50-master/audio/1-22804-A-46.wav'
+        wav_file_ex = r'/home/carl/projects/ESC-50-master/audio/1-22804-A-46.wav'
         
         data_array = add_tone(wav_file_ex,'insert')
         
     
     if sys.argv[1] == 'mean':
             
-        fldr = r'/home/carl1/projects/ESC-50-master/audio/'
+        fldr = r'/home/carl/projects/ESC-50-master/audio/'
         sngl_tf = False
         avg = mean_snd_data(sngl_tf, fldr)
         print(avg)
@@ -231,7 +231,7 @@ if __name__ == "__main__":
     if sys.argv[1] == "replace_note_sngl":
         
         #insert seems to inssert without overriding, but is in every other index
-        wav_file_ex = r'/home/carl1/projects/ESC-50-master/audio/1-22804-A-46.wav'
+        wav_file_ex = r'/home/carl/projects/ESC-50-master/audio/1-22804-A-46.wav'
         
         data_array = add_tone(wav_file_ex, 'replace')
         
@@ -245,7 +245,7 @@ if __name__ == "__main__":
             std = 100
             
         sngl_tf = True
-        wav_file_ex = r'/home/carl1/projects/ESC-50-master/audio/1-22804-A-46.wav'
+        wav_file_ex = r'/home/carl/projects/ESC-50-master/audio/1-22804-A-46.wav'
         add_noise(sngl_tf, wav_file_ex)
         
         t1 = time.time()
@@ -261,7 +261,7 @@ if __name__ == "__main__":
         print(len(a_wave)) # 44100
         print(np.max(a_wave)) # 4096
         print(np.min(a_wave)) # -4096
-        write(r'/home/carl1/projects/ESC-50-master/audio_a_note/a_note.wav', samplerate, a_wave)
+        write(r'/home/carl1projects/ESC-50-master/audio_a_note/a_note.wav', samplerate, a_wave)
         
     if sys.argv[1] == 'two_notes':
         
@@ -279,7 +279,7 @@ if __name__ == "__main__":
         print(np.max(a_wave), np.max(c_wave)) # 4096
         print(np.min(a_wave), np.min(c_wave)) # -4096
         
-        fn = r'/home/carl1/projects/ESC-50-master/audio_a_note/third_ac.wav'
+        fn = r'/home/carl/projects/ESC-50-master/audio_a_note/third_ac.wav'
         write(fn, samplerate, third)
         
 

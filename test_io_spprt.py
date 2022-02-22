@@ -59,6 +59,13 @@ def tst_fltr_prcss(data_loc, fft_tf):
     data_dct_lst = data_prcss.fltr_prcss_fldr(fltr_fnct, [data_prcss.fldr, 0.75])   
     for vl in data_dct_lst[:5]:
         print(vl)
+        
+    data_io = ios.DataIO()
+    data_io.add_flnm(data_loc)
+    samplerate, data_obj = data_io.rd_snd(sngl_fl=False, fft_tf=fft_tf)
+    snd_smooth = data_prcss.prcss_snd(data_obj)
+    print(len(data_obj), len(snd_smooth))
+    print(len(data_obj[0]), len(snd_smooth[0]))
     snd_end_tm = time.time()
     print(f'It took {snd_end_tm - snd_strt_tm} to get sound files.')
     print(f'There are now {len(data_dct_lst)} sampled files.')
@@ -70,7 +77,7 @@ if __name__ == "__main__":
     strt_tm = time.time()
     flnm = r'/home/deadpool/Projects/MCHN_LRNNG/DATA/ESC-50-master/meta/esc50.csv'
     snd_flnm = r'/home/deadpool/Projects/MCHN_LRNNG/DATA/ESC-50-master/audio/1-137-A-32.wav'
-    snd_fldr = r'/home/deadpool/Projects/MCHN_LRNNG/DATA/ESC-50-master/audio/'
+    # snd_fldr = r'/home/deadpool/Projects/MCHN_LRNNG/DATA/ESC-50-master/audio/'
     print("Testing meta data")
     tst_data_io_csv(flnm)
 

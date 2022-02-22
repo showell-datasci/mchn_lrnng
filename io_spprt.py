@@ -85,3 +85,14 @@ class ProcessDataIO(DataIO):
                     data_dct_lst.append(rstls)
         return data_dct_lst
     
+    def prcss_snd(self, snd_data):
+        smooth_snd = []
+        l = np.arange(0,len(snd_data[0]), 1000)
+        for snd in snd_data:
+            snd_piece = []
+            for i in l[1:]:
+                snd_piece.append(np.average(snd[i-1:i]))
+            smooth_snd.append(np.array(snd_piece))
+        return smooth_snd
+        
+        
