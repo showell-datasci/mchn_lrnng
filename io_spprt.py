@@ -49,7 +49,9 @@ class DataIO():
                 freq_arry = fftfreq(len(data_arry_fll), d=1/samplerate)
                 data_arry = np.stack((freq_arry, fft(data_arry_fll)), 0)
                 print(len(freq_arry), len(data_arry_fll))
-            return samplerate, data_arry
+                return samplerate, data_arry
+            else:
+                return samplerate, data_arry_fll
         else:
             data_dct_lst = []
             for flnm in os.listdir(self.fldr):
@@ -58,7 +60,10 @@ class DataIO():
                     if fft_tf:
                         freq_arry = fftfreq(len(data_arry_fll), d=1/samplerate)
                         data_arry = np.stack((freq_arry, fft(data_arry_fll)), 0)
-                    data_dct_lst.append({'flnm': flnm, 'smpl_rt': samplerate, 'data': data_arry})
+                        data_dct_lst.append({'flnm': flnm, 'smpl_rt': samplerate, 'data': data_arry})
+                    else:
+                        data_dct_lst.append({'flnm': flnm, 'smpl_rt': samplerate, 'data': data_arry_fll})
+                    
             return data_dct_lst
         
         
