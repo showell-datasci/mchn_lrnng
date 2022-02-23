@@ -69,12 +69,11 @@ def tst_fltr_prcss(data_loc, fft_tf):
     snd_smooth = data_prcss.prcss_snd(data_obj)
     new_fldr = '/home/carl/projects/ESC-50-master/audio_smooth/'
     smooth_data_dct_lst = []
-    for i in snd_smooth:
-        smooth_data_dct_lst.append({'flnm': new_fldr, 'smpl_r': int(44100/1000) , 'data': i})
+    for idx,i in enumerate(snd_smooth):
+        new_flnm = os.path.join(new_fldr, data_dct_lst[idx]['flnm'][:-4]+'_smooth.wav')
+        smooth_data_dct_lst.append({'flnm': new_flnm, 'smpl_r': int(44100/1000) , 'data': i})
     
-    data_io.wrt_snd(smooth_data_dct_lst, sngl_fl=True, fft_tf=False)
-    print(len(data_obj), len(snd_smooth))
-    print(len(data_obj[0]), len(snd_smooth[0]))
+    data_io.wrt_snd(smooth_data_dct_lst, sngl_fl=False, fft_tf=False)
     snd_end_tm = time.time()
     print(f'It took {snd_end_tm - snd_strt_tm} to get sound files.')
     print(f'There are now {len(data_dct_lst)} sampled files.')
