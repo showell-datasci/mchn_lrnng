@@ -64,16 +64,12 @@ def tst_fltr_prcss(data_loc, fft_tf):
     data_io.add_fldr(data_loc)
     data_dct_lst = data_io.rd_snd(sngl_fl=False, fft_tf=False)
     
-    data_obj = [ele['data'] for ele in data_dct_lst]
-        
-    snd_smooth = data_prcss.prcss_snd(data_obj)
-    new_fldr = '/home/carl/projects/ESC-50-master/audio_smooth/'
-    smooth_data_dct_lst = []
-    for idx,i in enumerate(snd_smooth):
-        new_flnm = os.path.join(new_fldr, data_dct_lst[idx]['flnm'][:-4]+'_smooth.wav')
-        smooth_data_dct_lst.append({'flnm': new_flnm, 'smpl_r': int(44100/1000) , 'data': i})
+    nw_fldr = '/'.join(data_loc.split(os.sep)[:-2]) + '/audio_smooth/'
     
-    data_io.wrt_snd(smooth_data_dct_lst, sngl_fl=False, fft_tf=False)
+    data_prcss.add_fldr(nw_fldr)
+    snd_smooth_dct_lst = data_prcss.prcss_snd(data_dct_lst)
+    
+    data_io.wrt_snd(snd_smooth_dct_lst, sngl_fl=False, fft_tf=False)
     snd_end_tm = time.time()
     print(f'It took {snd_end_tm - snd_strt_tm} to get sound files.')
     print(f'There are now {len(data_dct_lst)} sampled files.')
@@ -83,9 +79,14 @@ def tst_fltr_prcss(data_loc, fft_tf):
 
 if __name__ == "__main__":
     strt_tm = time.time()
-    flnm = r'/home/deadpool/Projects/MCHN_LRNNG/DATA/ESC-50-master/meta/esc50.csv'
-    snd_flnm = r'/home/deadpool/Projects/MCHN_LRNNG/DATA/ESC-50-master/audio/1-137-A-32.wav'
+    # flnm = r'/home/deadpool/Projects/MCHN_LRNNG/DATA/ESC-50-master/meta/esc50.csv'
+    # snd_flnm = r'/home/deadpool/Projects/MCHN_LRNNG/DATA/ESC-50-master/audio/1-137-A-32.wav'
     # snd_fldr = r'/home/deadpool/Projects/MCHN_LRNNG/DATA/ESC-50-master/audio/'
+    
+    flnm = r'/home/carl/projects/ESC-50-master/meta/esc50.csv'
+    snd_flnm = r'/home/carl/projects/ESC-50-master/audio/1-137-A-32.wav'
+    snd_fldr = r'/home/carl/projects/ESC-50-master/audio/'
+    
     print("Testing meta data")
     tst_data_io_csv(flnm)
 
@@ -94,14 +95,12 @@ if __name__ == "__main__":
     
     print("Testing sound data folder")
     tst_data_io_snd(snd_fldr, sngl_fl=False, fft_tf=False)
-    tst_data_io_snd(snd_fldr, sngl_fl=False, fft_tf=True)
+    # tst_data_io_snd(snd_fldr, sngl_fl=False, fft_tf=True)
     
     print("Testing filtering and processing of sound data folder")
     tst_fltr_prcss(snd_fldr, fft_tf=True)
     tst_fltr_prcss(snd_fldr, fft_tf=False)
 
-    data_io.wrt_snd(new_signal.astype(np.int16))
-       
     end_tm = time.time()
     print(f"This scirpt took {end_tm-strt_tm} seconds to run.")
     

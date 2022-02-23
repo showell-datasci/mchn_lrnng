@@ -45,10 +45,11 @@ class DataIO():
     def rd_snd(self, sngl_fl=True, fft_tf=False):
         if sngl_fl:
             samplerate, data_arry_fll = wavfile.read(self.flnm)
+            
             if fft_tf:
                 freq_arry = fftfreq(len(data_arry_fll), d=1/samplerate)
                 data_arry = np.stack((freq_arry, fft(data_arry_fll)), 0)
-                print(len(freq_arry), len(data_arry_fll))
+                # print(len(freq_arry), len(data_arry_fll))
                 return samplerate, data_arry
             else:
                 return samplerate, data_arry_fll
@@ -94,14 +95,25 @@ class ProcessDataIO(DataIO):
                     data_dct_lst.append(rstls)
         return data_dct_lst
     
-    def prcss_snd(self, snd_data):
-        smooth_snd = []
-        l = np.arange(0,len(snd_data[0]), 1000)
-        for snd in snd_data:
-            snd_piece = []
-            for i in l[1:]:
-                snd_piece.append(np.average(snd[i-1:i]))
-            smooth_snd.append(np.array(snd_piece))
-        return smooth_snd
+    def prcss_snd(self, snd_data, step_sz=1000, sngl_fl=False):
+        if sngl_fl:
+           l = np.arange(0,len(snd_data[0]), step_sz) 
+           snd_piece = []
+           for i in l[1:]:
+               snd_piece.append(np.average(snd_data[i-1:i]))
+           return np.array(snd_piece)
+        else:
+            smooth_snd_dct_lst = []
+            l = np.arange(0,len(snd_data[0]['data']), 1000)
+            for snd in snd_data:
+                snd_piece = []
+                for i in l[1:]:
+                    snd_piece.append(np.average(snd['data'][i-1:i]))
+                    
+                new_flnm = os.path.join(self.fldr, snd['flnm'][:-4]+'_smooth.wav')
+                new_signal = np.array(snd_piece)
+                dct_lst = {'flnm': new_flnm, 'smpl_r': int(snd['smpl_rt']/step_sz), 'data': new_signal}
+                smooth_snd_dct_lst.append(dct_lst)
+            return smooth_snd_dct_lst
         
         
