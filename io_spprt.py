@@ -8,6 +8,7 @@ script to contain io class
 """
 import numpy as np
 import os
+import numpy as np
 from scipy.fft import fft, fftfreq
 from scipy.io import wavfile
 
@@ -43,17 +44,20 @@ class DataIO():
     
     def rd_snd(self, sngl_fl=True, fft_tf=False):
         if sngl_fl:
-            samplerate, data_arry = wavfile.read(self.flnm)
+            samplerate, data_arry_fll = wavfile.read(self.flnm)
             if fft_tf:
-                data_arry = [ (fftfreq(len(data_arry), samplerate)[i], amp) for i, amp in enumerate(fft(data_arry))]
+                freq_arry = fftfreq(len(data_arry_fll), d=1/samplerate)
+                data_arry = np.stack((freq_arry, fft(data_arry_fll)), 0)
+                print(len(freq_arry), len(data_arry_fll))
             return samplerate, data_arry
         else:
             data_dct_lst = []
             for flnm in os.listdir(self.fldr):
                 if os.path.isfile(os.path.join(self.fldr, flnm)):
-                    samplerate, data_arry = wavfile.read(os.path.join(self.fldr, flnm))
+                    samplerate, data_arry_fll = wavfile.read(os.path.join(self.fldr, flnm))
                     if fft_tf:
-                        data_arry = [ (fftfreq(len(data_arry), samplerate)[i], amp) for i, amp in enumerate(fft(data_arry))]
+                        freq_arry = fftfreq(len(data_arry_fll), d=1/samplerate)
+                        data_arry = np.stack((freq_arry, fft(data_arry_fll)), 0)
                     data_dct_lst.append({'flnm': flnm, 'smpl_rt': samplerate, 'data': data_arry})
             return data_dct_lst
         

@@ -72,18 +72,19 @@ def make_prediction(inpt_arry, wghts, bias):
     layer_2 = fs.sigmoid(layer_1)
     return layer_2
 
-def rd_anlyss_data(fldr, fl_lst, fft_tf=False):
+def rd_anlyss_data(fl_lst, fft_tf=False):
     data_dct_lst = []
     # for each of the files we will need to get the sound data
+    io_cls = ios.DataIO()
     
+    for flnm in fl_lst:
+        io_cls.add_flnm(flnm)
+        sample_rate, snd_data = io_cls.rd_snd(sngl_fl=True, fft_tf=True)
+        data_dct_lst.append(snd_data)
     
     return data_dct_lst
 
 
-    for lbl in lbl_flnm_dct:
-        print(lbl, lbl_flnm_dct[lbl])
-    for lbl in other_lbl_dct:
-        print(lbl, other_lbl_dct[lbl])
 if __name__ == "__main__":
     strt_tm = time.time()
     print("Looking at sound data.")
@@ -98,12 +99,14 @@ if __name__ == "__main__":
     lbl_flnm_dct, other_lbl_dct = gt_anlyss_data(['chainsaw'], meta_flnm=flnm, mdl_fldr=mdl_fldr, non_lbl_prcnt=1)
     # read in the data
     print(lbl_flnm_dct)
+    print(other_lbl_dct)
+    fl_lst = [os.path.join(snd_fldr, flnm) for flnm in  lbl_flnm_dct['chainsaw']]
+    print(len(fl_lst))
+    data_dct_lst = rd_anlyss_data(fl_lst, fft_tf=True)
+    print(data_dct_lst[0])
     
     
-    # io_cls = ios.DataIO()
-    # io_cls.add_fldr(snd_fldr)
-    # snd_data = io_cls.rd_snd(sngl_fl=False, fft_tf=True)
-    # print(len(snd_data))
+
     
     
 
