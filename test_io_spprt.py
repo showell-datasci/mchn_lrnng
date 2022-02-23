@@ -61,9 +61,18 @@ def tst_fltr_prcss(data_loc, fft_tf):
         print(vl)
         
     data_io = ios.DataIO()
-    data_io.add_flnm(data_loc)
-    samplerate, data_obj = data_io.rd_snd(sngl_fl=False, fft_tf=fft_tf)
+    data_io.add_fldr(data_loc)
+    data_dct_lst = data_io.rd_snd(sngl_fl=False, fft_tf=False)
+    
+    data_obj = [ele['data'] for ele in data_dct_lst]
+        
     snd_smooth = data_prcss.prcss_snd(data_obj)
+    new_fldr = '/home/carl/projects/ESC-50-master/audio_smooth/'
+    smooth_data_dct_lst = []
+    for i in snd_smooth:
+        smooth_data_dct_lst.append({'flnm': new_fldr, 'smpl_r': int(44100/1000) , 'data': i})
+    
+    data_io.wrt_snd(smooth_data_dct_lst, sngl_fl=True, fft_tf=False)
     print(len(data_obj), len(snd_smooth))
     print(len(data_obj[0]), len(snd_smooth[0]))
     snd_end_tm = time.time()
