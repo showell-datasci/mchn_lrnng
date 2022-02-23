@@ -98,6 +98,7 @@ if __name__ == "__main__":
     lbl_flnm_dct, other_lbl_dct = gt_anlyss_data(['chainsaw'], meta_flnm=flnm, mdl_fldr=mdl_fldr, non_lbl_prcnt=1)
     # read in the data
     print(lbl_flnm_dct)
+    print(other_lbl_dct)
     
     
     # io_cls = ios.DataIO()
